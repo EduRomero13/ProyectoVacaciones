@@ -95,7 +95,7 @@
         </div>
         <div class="container">
           <div class="flex flex-wrap -mx-3" style="margin-top: -100px;">
-            <div class="w-full max-w-full px-3 mx-auto mt-0 md:flex-0 shrink-0 md:w-7/12 lg:w-5/12 xl:w-4/12">
+            <div class="w-full max-w-full px-3 mx-auto mt-0 md:flex-0 shrink-0 md:w-9/12 lg:w-7/12 xl:w-6/12">
               <div class="relative z-0 flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
                 <div style="padding: 15px 24px;" class="mb-0 text-center bg-white border-b-0 rounded-t-2xl">
                   <h5>Regístrate con</h5>
@@ -145,22 +145,185 @@
                   </div>
                 </div>
                 <div style="padding: 15px 24px;" class="flex-auto">
-                  <form role="form text-left">
-                    <div style="margin-bottom: 12px;">
-                      <input type="text" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Nombre" aria-label="Name" aria-describedby="email-addon" />
+                  <form role="form text-left" id="registrationForm" method="POST" action="/register" enctype="multipart/form-data">
+                    @csrf
+                    
+                    <!-- Selector de tipo de usuario -->
+                    <div style="margin-bottom: 20px;">
+                      <label class="block text-sm font-semibold text-slate-700 mb-2">Tipo de usuario</label>
+                      <div class="flex gap-3">
+                        <div class="flex items-center mr-2">
+                          <input type="radio" id="estudiante" name="user_type" value="estudiante" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" checked>
+                          <label for="estudiante" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer flex items-center">
+                            <i class="fas fa-user-graduate text-blue-600 mr-1"></i>
+                            Estudiante
+                          </label>
+                        </div>
+                        <div class="flex items-center mr-2">
+                          <input type="radio" id="padre" name="user_type" value="padre" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
+                          <label for="padre" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer flex items-center">
+                            <i class="fas fa-users text-blue-600 mr-1"></i>
+                            Padre/Madre    
+                          </label>
+                        </div>
+                        <div class="flex items-center">
+                          <input type="radio" id="docente" name="user_type" value="docente" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
+                          <label for="docente" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer flex items-center">
+                            <i class="fas fa-chalkboard-teacher text-blue-600 mr-1"></i>
+                            Docente
+                          </label>
+                        </div>
+                      </div>
                     </div>
-                    <div style="margin-bottom: 12px;">
-                      <input type="email" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Correo" aria-label="Email" aria-describedby="email-addon" />
+
+                    <!-- Datos básicos (comunes para todos) -->
+                    <div class="mb-4">
+                      <h6 class="text-sm font-semibold text-slate-700 mb-3">Datos Personales</h6>
+                      
+                      <div style="margin-bottom: 12px;">
+                        <input type="text" name="name" required class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Nombre completo" />
+                        @error('name')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <input type="text" name="dni" required class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="DNI" />
+                        @error('dni')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <input type="date" name="fechaNacimiento" required class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" />
+                        @error('fechaNacimiento')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <input type="email" name="email" required class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Correo electrónico" />
+                        @error('email')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <input type="password" name="password" required class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Contraseña" />
+                        @error('password')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <input type="password" name="password_confirmation" required class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Confirmar contraseña" />
+                      </div>
                     </div>
-                    <div style="margin-bottom: 12px;">
-                      <input type="password" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Contraseña" aria-label="Password" aria-describedby="password-addon" />
+
+                    <!-- Campos específicos para estudiantes -->
+                    <div id="estudiante-fields" class="role-specific-fields mb-4">
+                      <h6 class="text-sm font-semibold text-slate-700 mb-3">Documentos de Estudiante</h6>
+                      
+                      <div style="margin-bottom: 12px;">
+                        <label class="block text-xs text-slate-600 mb-1">Partida de Nacimiento (PDF/JPG)</label>
+                        <input type="file" name="partida_nacimiento" accept=".pdf,.jpg,.jpeg,.png" class="text-sm block w-full text-gray-700 bg-white border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                        @error('partida_nacimiento')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <label class="block text-xs text-slate-600 mb-1">Constancia de Estudios Anteriores (PDF/JPG)</label>
+                        <input type="file" name="constancia_estudios" accept=".pdf,.jpg,.jpeg,.png" class="text-sm block w-full text-gray-700 bg-white border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                        @error('constancia_estudios')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
                     </div>
+
+                    <!-- Campos específicos para padres de familia -->
+                    <div id="padre-fields" class="role-specific-fields mb-4" style="display: none;">
+                      <h6 class="text-sm font-semibold text-slate-700 mb-3">Información del Hijo</h6>
+                      
+                      <div style="margin-bottom: 12px;">
+                        <input type="text" name="nombre_hijo" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Nombre completo del hijo" />
+                        @error('nombre_hijo')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <input type="text" name="dni_hijo" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="DNI del hijo" />
+                        @error('dni_hijo')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <label class="block text-xs text-slate-600 mb-1">Partida de Nacimiento del Hijo (PDF/JPG)</label>
+                        <input type="file" name="partida_nacimiento_hijo" accept=".pdf,.jpg,.jpeg,.png" class="text-sm block w-full text-gray-700 bg-white border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                        @error('partida_nacimiento_hijo')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <label class="block text-xs text-slate-600 mb-1">Últimos 4 dígitos de tarjeta (opcional)</label>
+                        <input type="text" name="ultimos_digitos_tarjeta" maxlength="4" pattern="[0-9]{4}" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="XXXX" />
+                        @error('ultimos_digitos_tarjeta')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+                    </div>
+
+                    <!-- Campos específicos para docentes -->
+                    <div id="docente-fields" class="role-specific-fields mb-4" style="display: none;">
+                      <h6 class="text-sm font-semibold text-slate-700 mb-3">Documentos Profesionales</h6>
+                      
+                      <div style="margin-bottom: 12px;">
+                        <input type="text" name="especialidad" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Especialidad" />
+                        @error('especialidad')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <label class="block text-xs text-slate-600 mb-1">Título Universitario (PDF/JPG)</label>
+                        <input type="file" name="titulo_profesional" accept=".pdf,.jpg,.jpeg,.png" class="text-sm block w-full text-gray-700 bg-white border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                        @error('titulo_profesional')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+
+                      <div style="margin-bottom: 12px;">
+                        <label class="block text-xs text-slate-600 mb-1">Curriculum Vitae (PDF)</label>
+                        <input type="file" name="curriculum_vitae" accept=".pdf" class="text-sm block w-full text-gray-700 bg-white border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                        @error('curriculum_vitae')
+                          <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
+                      </div>
+                    </div>
+
                     <div style="margin-bottom: 8px;" class="min-h-6 pl-6.92 block">
-                      <input id="terms" class="w-4.92 h-4.92 ease-soft -ml-6.92 rounded-1.4 checked:bg-gradient-to-tl checked:from-gray-900 checked:to-slate-800 after:text-xxs after:font-awesome after:duration-250 after:ease-soft-in-out duration-250 relative float-left mt-1 cursor-pointer appearance-none border border-solid border-slate-200 bg-white bg-contain bg-center bg-no-repeat align-top transition-all after:absolute after:flex after:h-full after:w-full after:items-center after:justify-center after:text-white after:opacity-0 after:transition-all after:content-['\f00c'] checked:border-0 checked:border-transparent checked:bg-transparent checked:after:opacity-100" type="checkbox" value="" checked />
+                      <input id="terms" name="terms" required class="w-4.92 h-4.92 ease-soft -ml-6.92 rounded-1.4 checked:bg-gradient-to-tl checked:from-gray-900 checked:to-slate-800 after:text-xxs after:font-awesome after:duration-250 after:ease-soft-in-out duration-250 relative float-left mt-1 cursor-pointer appearance-none border border-solid border-slate-200 bg-white bg-contain bg-center bg-no-repeat align-top transition-all after:absolute after:flex after:h-full after:w-full after:items-center after:justify-center after:text-white after:opacity-0 after:transition-all after:content-['\f00c'] checked:border-0 checked:border-transparent checked:bg-transparent checked:after:opacity-100" type="checkbox" value="1" />
                       <label class="mb-2 ml-1 font-normal cursor-pointer select-none text-sm text-slate-700" for="terms"> Estoy de acuerdo con los <a href="javascript:;" class="font-bold text-slate-700">Términos y condiciones</a> </label>
+                      @error('terms')
+                        <span class="text-red-500 text-xs block">{{ $message }}</span>
+                      @enderror
                     </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                      <div class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                        <div class="text-sm text-blue-700">
+                          <p class="font-semibold mb-1">Proceso de Verificación</p>
+                          <p>Sus documentos serán validados por el administrador. Recibirá un correo electrónico con el resultado de la verificación en un plazo de 12-24 horas.</p>
+                        </div>
+                      </div>
+                    </div>
+
                     <div class="text-center">
-                      <button type="button" style="padding: 12px 24px; margin-top: 15px; margin-bottom: 8px;" class="inline-block w-full font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-gray-900 to-slate-800 hover:border-slate-700 hover:bg-slate-700 hover:text-white">Registrarse</button>
+                      <button type="submit" style="padding: 12px 24px; margin-top: 15px; margin-bottom: 8px;" class="inline-block w-full font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-gray-900 to-slate-800 hover:border-slate-700 hover:bg-slate-700 hover:text-white">Registrarse</button>
                     </div>
                     <p style="margin-top: 10px; margin-bottom: 0;" class="leading-normal text-sm">¿Ya tienes una cuenta? <a href="/" class="font-bold text-slate-700">Iniciar sesión</a></p>
                   </form>
@@ -220,4 +383,130 @@
   <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}" async></script>
   <!-- main script file  -->
   <script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5') }}" async></script>
+  
+  <!-- Script para manejar campos dinámicos según tipo de usuario -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const userTypeRadios = document.querySelectorAll('input[name="user_type"]');
+      const roleFields = document.querySelectorAll('.role-specific-fields');
+      
+      function toggleFields() {
+        // Ocultar todos los campos específicos
+        roleFields.forEach(field => {
+          field.style.display = 'none';
+          // Remover required de campos ocultos
+          const inputs = field.querySelectorAll('input, select, textarea');
+          inputs.forEach(input => {
+            if (input.type !== 'file') {
+              input.removeAttribute('required');
+            }
+          });
+        });
+        
+        // Mostrar campos del tipo seleccionado
+        const selectedType = document.querySelector('input[name="user_type"]:checked').value;
+        const fieldsToShow = document.getElementById(selectedType + '-fields');
+        
+        if (fieldsToShow) {
+          fieldsToShow.style.display = 'block';
+          // Añadir required a campos necesarios
+          const requiredInputs = fieldsToShow.querySelectorAll('input[name$="_nacimiento"], input[name$="_estudios"], input[name$="_profesional"], input[name$="_vitae"], input[name="especialidad"], input[name="nombre_hijo"], input[name="dni_hijo"], input[name$="_hijo"]');
+          requiredInputs.forEach(input => {
+            if (input.type === 'file' || input.name === 'especialidad' || input.name === 'nombre_hijo' || input.name === 'dni_hijo') {
+              input.setAttribute('required', 'required');
+            }
+          });
+        }
+      }
+      
+      // Ejecutar al cargar la página
+      toggleFields();
+      
+      // Ejecutar cuando cambie la selección
+      userTypeRadios.forEach(radio => {
+        radio.addEventListener('change', toggleFields);
+      });
+      
+      // Validación de archivos
+      document.querySelectorAll('input[type="file"]').forEach(input => {
+        input.addEventListener('change', function() {
+          const file = this.files[0];
+          if (file) {
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = this.accept.split(',').map(type => type.trim());
+            
+            if (file.size > maxSize) {
+              alert('El archivo es demasiado grande. El tamaño máximo es 5MB.');
+              this.value = '';
+              return;
+            }
+            
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedTypes.includes(fileExtension)) {
+              alert('Tipo de archivo no permitido. Por favor seleccione un archivo válido.');
+              this.value = '';
+              return;
+            }
+          }
+        });
+      });
+      
+      // Validación de últimos 4 dígitos de tarjeta
+      const tarjetaInput = document.querySelector('input[name="ultimos_digitos_tarjeta"]');
+      if (tarjetaInput) {
+        tarjetaInput.addEventListener('input', function() {
+          // Solo permitir números
+          this.value = this.value.replace(/[^0-9]/g, '');
+          // Limitar a 4 caracteres
+          if (this.value.length > 4) {
+            this.value = this.value.slice(0, 4);
+          }
+        });
+      }
+      
+      // Validación del formulario antes del envío
+      document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        const selectedType = document.querySelector('input[name="user_type"]:checked').value;
+        const terms = document.getElementById('terms');
+        
+        if (!terms.checked) {
+          e.preventDefault();
+          alert('Debe aceptar los términos y condiciones.');
+          return;
+        }
+        
+        // Validaciones específicas por tipo
+        if (selectedType === 'estudiante') {
+          const partidaNac = document.querySelector('input[name="partida_nacimiento"]');
+          const constancia = document.querySelector('input[name="constancia_estudios"]');
+          
+          if (!partidaNac.files.length || !constancia.files.length) {
+            e.preventDefault();
+            alert('Debe subir la partida de nacimiento y constancia de estudios.');
+            return;
+          }
+        } else if (selectedType === 'padre') {
+          const nombreHijo = document.querySelector('input[name="nombre_hijo"]');
+          const dniHijo = document.querySelector('input[name="dni_hijo"]');
+          const partidaHijo = document.querySelector('input[name="partida_nacimiento_hijo"]');
+          
+          if (!nombreHijo.value || !dniHijo.value || !partidaHijo.files.length) {
+            e.preventDefault();
+            alert('Debe completar todos los datos del hijo y subir su partida de nacimiento.');
+            return;
+          }
+        } else if (selectedType === 'docente') {
+          const especialidad = document.querySelector('input[name="especialidad"]');
+          const titulo = document.querySelector('input[name="titulo_profesional"]');
+          const cv = document.querySelector('input[name="curriculum_vitae"]');
+          
+          if (!especialidad.value || !titulo.files.length || !cv.files.length) {
+            e.preventDefault();
+            alert('Debe completar la especialidad y subir el título profesional y curriculum vitae.');
+            return;
+          }
+        }
+      });
+    });
+  </script>
 </html>

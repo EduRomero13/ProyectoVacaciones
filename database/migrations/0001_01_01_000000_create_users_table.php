@@ -13,12 +13,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('name', 100);
+            $table->string('dni', 20)->unique();
+            $table->date('fechaNacimiento');
+            $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->string('remember_token', 100)->nullable();
+            $table->enum('estadoCuenta', ['pendiente', 'verificado', 'bloqueado'])->default('pendiente');
             $table->timestamps();
+            $table->unsignedBigInteger('idRol');
+            
+            // Foreign key constraint
+            $table->foreign('idRol')->references('idRol')->on('roles')->onDelete('restrict')->onUpdate('cascade');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

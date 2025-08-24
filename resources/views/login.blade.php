@@ -95,6 +95,30 @@
                     <h3 class="relative z-10 font-bold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text">¡Bienvenido de vuelta!</h3>
                     <p class="mb-0">Ingresa tu correo y contraseña para entrar</p>
                   </div>
+                  
+                  <!-- Mensajes de éxito y error -->
+                  @if(session('success'))
+                    <div class="p-4 mx-6 mb-4 text-sm text-green-800 bg-green-50 border border-green-200 rounded-lg">
+                      <div class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span>{{ session('success') }}</span>
+                      </div>
+                    </div>
+                  @endif
+
+                  @if($errors->any())
+                    <div class="p-4 mx-6 mb-4 text-sm text-red-800 bg-red-50 border border-red-200 rounded-lg">
+                      <div class="flex items-center mb-2">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <span class="font-semibold">Error:</span>
+                      </div>
+                      <ul class="list-none">
+                        @foreach($errors->all() as $error)
+                          <li>• {{ $error }}</li>
+                        @endforeach
+                      </ul>
+                    </div>
+                  @endif
                   <div class="flex-auto p-6">
                     <form role="form" class="login-form" method="POST" action="{{ route('identificacion') }}">
                       @csrf
