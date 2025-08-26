@@ -10,6 +10,11 @@ use App\Models\Role;
 use App\Models\Estudiante;
 use App\Models\Padre;
 use App\Models\Docente;
+use App\Models\EmailVerificationToken;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmailBeforeRegistration;
+
 class UserController extends Controller
 
 {
@@ -80,6 +85,77 @@ class UserController extends Controller
         return redirect('/');
     }
 
+    public function verifyEmailExists(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:users,email'
+        ], [
+            'email.required' => 'El email es obligatorio.',
+            'email.email' => 'Debe ser un email válido.',
+            'email.unique' => 'Este email ya está registrado.',
+        ]);
+
+        try {
+            // Generar token único
+            $token = Str::random(60);
+            
+            // Eliminar tokens anteriores del mismo email
+            EmailVerificationToken::where('email', $request->email)->delete();
+            
+            // Crear nuevo token
+            $verificationToken = EmailVerificationToken::create([
+                'email' => $request->email,
+                'token' => $token,
+                'verified' => false,
+                'expires_at' => now()->addMinutes(30), // Expira en 30 minutos
+            ]);
+
+            // Enviar correo
+            Mail::to($request->email)->send(new VerifyEmailBeforeRegistration($verificationToken));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Hemos enviado un correo de verificación a tu email. Revisa tu bandeja de entrada.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar el correo: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Verificar token desde el correo
+     */
+    public function verifyEmailToken($token)
+    {
+        $verificationToken = EmailVerificationToken::where('token', $token)->first();
+
+        if (!$verificationToken) {
+            return redirect()->route('registrar')->with('error', 'Token de verificación inválido.');
+        }
+
+        if ($verificationToken->isExpired()) {
+            return redirect()->route('registrar')->with('error', 'El token de verificación ha expirado.');
+        }
+
+        if ($verificationToken->verified) {
+            return redirect()->route('registrar')->with('error', 'Este email ya ha sido verificado.');
+        }
+
+        // Marcar como verificado
+        $verificationToken->update(['verified' => true]);
+
+        // Redirigir al formulario con el email verificado
+        return redirect()->route('registrar')->with([
+            'email_verified' => true,
+            'verified_email' => $verificationToken->email,
+            'success' => '¡Email verificado exitosamente! Ahora puedes completar tu registro.'
+        ]);
+    }
+
     public function registrar(Request $request)
     {
         // Validaciones básicas
@@ -104,6 +180,12 @@ class UserController extends Controller
             'terms.accepted' => 'Debe aceptar los términos y condiciones.',
         ]);
 
+        $emailToken = EmailVerificationToken::where('email', $request->email)
+                                       ->where('verified', true)
+                                       ->first();
+        if (!$emailToken) {
+            return back()->withErrors(['email' => 'Debe verificar su email antes de registrarse.'])->withInput();
+        }
         // Validaciones específicas según el tipo de usuario
         if ($request->user_type === 'estudiante') {
             $request->validate([
@@ -204,9 +286,8 @@ class UserController extends Controller
                     'curriculumVitae' => $cvPath,
                 ]);
             }
-
+            $emailToken->delete();
             DB::commit();
-
             // Mensaje de éxito
             $mensaje = "Registro exitoso. Sus documentos serán validados por el administrador en un plazo de 12-24 horas ";
 

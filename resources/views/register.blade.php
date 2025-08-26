@@ -202,11 +202,53 @@
                       </div>
 
                       <div style="margin-bottom: 12px;">
-                        <input type="email" name="email" required class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Correo electrónico" />
-                        @error('email')
-                          <span class="text-red-500 text-xs">{{ $message }}</span>
-                        @enderror
+                      <div class="flex items-center gap-2">
+                        <input 
+                          type="email" 
+                          name="email" 
+                          id="email"
+                          required 
+                          class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" 
+                          placeholder="Correo electrónico" 
+                          value="{{ session('verified_email') ?? old('email') }}"
+                          {{ session('email_verified') ? 'readonly' : '' }}
+                        />
+                        
+                        @if(!session('email_verified'))
+                          <button 
+                            type="button" 
+                            id="verifyEmailBtn"
+                            class="px-3 py-2 bg-black hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors duration-200 whitespace-nowrap"
+                          >
+                            Verificar
+                          </button>
+                        @endif
+                        
+                        <div class="flex items-center">
+                          <input 
+                            type="checkbox" 
+                            id="emailVerified" 
+                            name="email_verified"
+                            class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                            {{ session('email_verified') ? 'checked' : '' }}
+                            disabled
+                          />
+                          <label for="emailVerified" class="ml-1 text-xs text-gray-700 whitespace-nowrap">
+                            Verificado
+                          </label>
+                        </div>
                       </div>
+                      
+                      @if(session('success'))
+                        <div class="mt-1 text-xs text-green-500">{{ session('success') }}</div>
+                      @endif
+                      
+                      @error('email')
+                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                      @enderror
+                      
+                      <div id="emailStatus" class="mt-1 text-xs hidden"></div>
+                    </div>
 
                       <div style="margin-bottom: 12px;">
                         <input type="password" name="password" required class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Contraseña" />
@@ -384,6 +426,99 @@
   <!-- main script file  -->
   <script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5') }}" async></script>
   
+
+  <!-- Script para la verificación del correo -->
+  @if(session('email_verified'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailCheckbox = document.getElementById('emailVerified');
+            const emailInput = document.getElementById('email');
+            
+            if (emailCheckbox && emailInput) {
+                emailCheckbox.checked = true;
+                emailInput.readOnly = true;
+            }
+        });
+    </script>
+  @endif
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const verifyBtn = document.getElementById('verifyEmailBtn');
+    const emailInput = document.getElementById('email');
+    const emailCheckbox = document.getElementById('emailVerified');
+    const emailStatus = document.getElementById('emailStatus');
+    
+    verifyBtn.addEventListener('click', function() {
+      const email = emailInput.value.trim();
+      
+      if (!email) {
+        showStatus('Por favor ingresa un email válido', 'error');
+        return;
+      }
+      
+      // Validación básica de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showStatus('Por favor ingresa un email válido', 'error');
+        return;
+      }
+      
+      // Cambiar estado del botón
+      verifyBtn.disabled = true;
+      verifyBtn.innerHTML = 'Enviando...';
+      verifyBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+      verifyBtn.classList.add('bg-gray-400');
+      
+      // Aquí irá tu petición AJAX cuando implementes la lógica
+      // Por ahora simulo el proceso
+      fetch('{{ route("verify.email.exists") }}', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': '{{ csrf_token() }}'
+          },
+          body: JSON.stringify({ email: email })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showStatus(data.message, 'success');
+              verifyBtn.innerHTML = 'Enviado';
+          } else {
+              showStatus(data.message, 'error');
+              verifyBtn.disabled = false;
+              verifyBtn.innerHTML = 'Verificar';
+              verifyBtn.classList.remove('bg-gray-400');
+              verifyBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          showStatus('Error al enviar el correo', 'error');
+          verifyBtn.disabled = false;
+          verifyBtn.innerHTML = 'Verificar';
+          verifyBtn.classList.remove('bg-gray-400');
+          verifyBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+      });
+    });
+    
+    function showStatus(message, type) {
+      emailStatus.textContent = message;
+      emailStatus.classList.remove('hidden', 'text-red-500', 'text-green-500', 'text-blue-500');
+      
+      if (type === 'error') {
+        emailStatus.classList.add('text-red-500');
+      } else if (type === 'success') {
+        emailStatus.classList.add('text-blue-500');
+      } else if (type === 'verified') {
+        emailStatus.classList.add('text-green-500');
+      }
+      
+      emailStatus.classList.remove('hidden');
+    }
+  });
+  </script>
+
   <!-- Script para manejar campos dinámicos según tipo de usuario -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {

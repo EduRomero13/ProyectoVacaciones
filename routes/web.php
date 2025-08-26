@@ -12,4 +12,5 @@ Route::middleware('auth')->group(function () {
     Route::view('/welcome','welcome');
     Route::get('/logout', [UserController::class,'salir'])->name('logout');
 });
-
+Route::post('/verify-email-exists', [UserController::class, 'verifyEmailExists'])->name('verify.email.exists');
+Route::get('/verify-email/{token}', [UserController::class, 'verifyEmailToken'])->name('verify.email.token');
