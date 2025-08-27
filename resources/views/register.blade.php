@@ -427,6 +427,39 @@
   <script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5') }}" async></script>
   
 
+  <!-- Script para el auto rellenado de los inputs al verificar el correo -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Verificar si hay datos del formulario en la sesión
+      @if(session('form_data'))
+          const formData = @json(session('form_data'));
+          
+          // Rellenar los campos del formulario
+          Object.keys(formData).forEach(function(key) {
+              const input = document.querySelector(`[name="${key}"]`);
+              if (input && formData[key]) {
+                  if (input.type === 'radio' || input.type === 'checkbox') {
+                      if (input.value === formData[key]) {
+                          input.checked = true;
+                      }
+                  } else {
+                      input.value = formData[key];
+                  }
+              }
+          });
+          
+          // Si hay contraseña guardada, también rellenarla
+          @if(session('pending_registration_password'))
+              const password = '{{ session("pending_registration_password") }}';
+              const passwordInput = document.querySelector('[name="password"]');
+              const passwordConfInput = document.querySelector('[name="password_confirmation"]');
+              if (passwordInput) passwordInput.value = password;
+              if (passwordConfInput) passwordConfInput.value = password;
+          @endif
+      @endif
+  });
+  </script>
+
   <!-- Script para la verificación del correo -->
   @if(session('email_verified'))
     <script>
@@ -441,12 +474,14 @@
         });
     </script>
   @endif
+
   <script>
   document.addEventListener('DOMContentLoaded', function() {
     const verifyBtn = document.getElementById('verifyEmailBtn');
     const emailInput = document.getElementById('email');
     const emailCheckbox = document.getElementById('emailVerified');
     const emailStatus = document.getElementById('emailStatus');
+    const form = document.getElementById('registrationForm');
     
     verifyBtn.addEventListener('click', function() {
       const email = emailInput.value.trim();
@@ -466,18 +501,28 @@
       // Cambiar estado del botón
       verifyBtn.disabled = true;
       verifyBtn.innerHTML = 'Enviando...';
-      verifyBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+      verifyBtn.classList.remove('bg-black', 'hover:bg-blue-700');
       verifyBtn.classList.add('bg-gray-400');
       
-      // Aquí irá tu petición AJAX cuando implementes la lógica
-      // Por ahora simulo el proceso
+      // Crear FormData con todos los datos del formulario
+      const formData = new FormData(form);
+      
+      // Agregar el email específicamente
+      formData.set('email', email);
+      
+      // Remover archivos del FormData para esta petición (solo verificamos email)
+      const fileInputs = form.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(input => {
+        formData.delete(input.name);
+      });
+      
       fetch('{{ route("verify.email.exists") }}', {
           method: 'POST',
           headers: {
-              'Content-Type': 'application/json',
               'X-CSRF-TOKEN': '{{ csrf_token() }}'
+              // No incluir Content-Type, let browser set it para FormData
           },
-          body: JSON.stringify({ email: email })
+          body: formData
       })
       .then(response => response.json())
       .then(data => {
@@ -489,7 +534,7 @@
               verifyBtn.disabled = false;
               verifyBtn.innerHTML = 'Verificar';
               verifyBtn.classList.remove('bg-gray-400');
-              verifyBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+              verifyBtn.classList.add('bg-black', 'hover:bg-blue-700');
           }
       })
       .catch(error => {
@@ -498,7 +543,7 @@
           verifyBtn.disabled = false;
           verifyBtn.innerHTML = 'Verificar';
           verifyBtn.classList.remove('bg-gray-400');
-          verifyBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+          verifyBtn.classList.add('bg-black', 'hover:bg-blue-700');
       });
     });
     

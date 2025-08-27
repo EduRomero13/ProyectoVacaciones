@@ -52,31 +52,43 @@ class UserController extends Controller
             'email.required'=>'Ingrese Usuario',
             'password.required'=>'Ingrese contraseña',
         ]);
-        $name=$request->get('email');
-        $query=User::where('email','=',$name)->get();
-        if ($query->count()!=0)
-        {
-            $hashp=$query[0]->password;
-            $password=$request->get('password');
-            if (password_verify($password, $hashp))
-            {
-                // Autenticar al usuario
-                Auth::login($query[0]);
-                
-                // Regenerar sesión por seguridad
-                $request->session()->regenerate();
-                
-                return redirect('/welcome');  
-            }
-            else
-            {
-                return back()->withErrors(['password'=>'Contraseña no válida'])->withInput(request(['email', 'password']));
-            }
+        // Buscar usuario por email
+        $user = User::where('email', $request->email)->first();
+
+        // Verificar si el usuario existe
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'No existe una cuenta con este email'
+            ])->withInput($request->only('email'));
         }
-        else
-        {
-            return back()->withErrors(['email'=>'Usuario no válido'])->withInput(request(['email']));
+
+        // Verificar estado de la cuenta
+        if ($user->estadoCuenta !== 'verificado') {
+            $mensaje = match($user->estadoCuenta) {
+                'pendiente' => 'Su cuenta está pendiente de verificación por el administrador',
+                'suspendido' => 'Su cuenta ha sido suspendida. Contacte al administrador',
+                'rechazado' => 'Su cuenta ha sido rechazada. Contacte al administrador',
+                default => 'Su cuenta no está activa'
+            };
+            
+            return back()->withErrors([
+                'email' => $mensaje
+            ])->withInput($request->only('email'));
         }
+
+        if (!Hash::check($request->password, $user->password)) {
+        return back()->withErrors([
+            'password' => 'Contraseña incorrecta'
+        ])->withInput($request->only('email'));
+        }
+
+        // Autenticar al usuario
+        Auth::login($user);
+        
+        // Regenerar sesión por seguridad
+        $request->session()->regenerate();
+        
+        return redirect()->intended('/welcome');
     }
     public function salir(Request $request){ 
         Auth::logout();
@@ -96,6 +108,15 @@ class UserController extends Controller
         ]);
 
         try {
+            //Guardar todos los datos ingresados antes de mandar el correo
+            $formData = $request->except(['_token', 'password', 'password_confirmation']);
+            session(['pending_registration_data' => $formData]);
+            
+            // También guardar la contraseña de forma segura (hasheada temporalmente)
+            if ($request->has('password')) {
+                session(['pending_registration_password' => $request->password]);
+            }
+
             // Generar token único
             $token = Str::random(60);
             
@@ -148,11 +169,15 @@ class UserController extends Controller
         // Marcar como verificado
         $verificationToken->update(['verified' => true]);
 
+        // Obtener los datos guardados en sesión
+        $formData = session('pending_registration_data', []);
+
         // Redirigir al formulario con el email verificado
         return redirect()->route('registrar')->with([
             'email_verified' => true,
             'verified_email' => $verificationToken->email,
-            'success' => '¡Email verificado exitosamente! Ahora puedes completar tu registro.'
+            'success' => '¡Email verificado exitosamente! Ahora puedes completar tu registro.',
+            'form_data'=> $formData
         ]);
     }
 
@@ -286,6 +311,7 @@ class UserController extends Controller
                     'curriculumVitae' => $cvPath,
                 ]);
             }
+            session()->forget(['pending_registration_data', 'pending_registration_password']);
             $emailToken->delete();
             DB::commit();
             // Mensaje de éxito
