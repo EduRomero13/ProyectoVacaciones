@@ -19,31 +19,7 @@ class UserController extends Controller
 
 {
     public function verificalogin(Request $request){ 
-        /**
-         * Flujo de acción del request 
-         * 1. Cliente/Navegador → Envía petición HTTP con datos
-         * 2. Servidor Web (Apache/Nginx) → Recibe petición HTTP
-         * 3. Laravel → Convierte petición HTTP en objeto Request
-         * 4. Laravel → Pasa el objeto Request a tu controlador
-         */
 
-        /**
-         * Lo que sucede:
-         * Cliente envía datos:
-            * httpPOST /login HTTP/1.1
-            * Host: miapp.com
-            * Content-Type: application/x-www-form-urlencoded
-            * email=usuario@email.com&password=123456
-         * Laravel convierte esto en objeto Request:
-            * // Laravel automáticamente hace esto:
-            * $request = new Request();
-            * $request->email = 'usuario@email.com';
-            * $request->password = '123456';
-         * Laravel pasa el Request a tu controlador:
-            * // Laravel internamente hace:
-            * $controller = new UserController();
-            * $controller->verificalogin($request); // ← Aquí recibes el objeto
-         */
         $data=request()->validate([
             'email'=>'required',
             'password'=>'required'
@@ -66,7 +42,6 @@ class UserController extends Controller
         if ($user->estadoCuenta !== 'verificado') {
             $mensaje = match($user->estadoCuenta) {
                 'pendiente' => 'Su cuenta está pendiente de verificación por el administrador',
-                'suspendido' => 'Su cuenta ha sido suspendida. Contacte al administrador',
                 'rechazado' => 'Su cuenta ha sido rechazada. Contacte al administrador',
                 default => 'Su cuenta no está activa'
             };
@@ -84,6 +59,14 @@ class UserController extends Controller
 
         // Autenticar al usuario
         Auth::login($user);
+        // Auth y sesiones en Laravel:
+        // - Auth es una fachada que permite gestionar la autenticación de usuarios.
+        // - Auth::user() retorna el usuario autenticado actualmente (o null si no hay sesión activa).
+        // - Auth::check() retorna true si hay un usuario autenticado.
+        // - Cuando un usuario inicia sesión, Laravel almacena su información en la sesión.
+        // - Las sesiones permiten mantener el estado del usuario entre peticiones HTTP.
+        // - Usar Auth junto con middleware permite proteger rutas y filtrar acceso según el rol del usuario.
+        // - Ejemplo: if (!Auth::check() || !Auth::user()->hasRole($role)) { abort(403); }
         
         // Regenerar sesión por seguridad
         $request->session()->regenerate();
