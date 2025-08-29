@@ -38,7 +38,7 @@
       <div class="items-center block w-auto max-h-screen overflow-auto h- grow basis-full">
         <ul class="flex flex-col pl-0 mb-0">
           <li class="mt-0.5 w-full">
-            <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors rounded-lg " id="sidebar-perfil" href="#">
+            <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors rounded-lg " id="sidebar-perfil" href="/perfil">
               <div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5 transition-all" id="icon-tables">
                 <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <title>customer-support</title>
@@ -239,7 +239,7 @@
           @elseif(Auth::user() && Auth::user()->role->nombreRol == 'estudiante')
 
             <li class="mt-0.5 w-full">
-            <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors rounded-lg " id="sidebar-tables" href="#">
+            <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors rounded-lg " id="sidebar-tables" href="/matricula">
               <div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5 transition-all" id="icon-tables">
                 <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <title>spaceship</title>
@@ -431,45 +431,47 @@
     </main>
   </body>
   <script>
-    // Selección inicial al cargar la página
-    window.addEventListener('DOMContentLoaded', function() {
-      var perfilLink = document.getElementById('sidebar-perfil');
-      if (perfilLink) {
-        perfilLink.classList.add('border-2', 'border-pink-500', 'shadow-soft-xl');
-        var iconDiv = perfilLink.querySelector('div');
+  // Selección inicial según la ruta actual
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('aside ul li a').forEach(function(link) {
+      // Si el href coincide con la ruta actual, selecciona ese enlace
+      if (link.getAttribute('href') === window.location.pathname) {
+        link.classList.add('border-2', 'border-pink-500', 'shadow-soft-xl');
+        var iconDiv = link.querySelector('div');
         if (iconDiv) {
           iconDiv.classList.remove('bg-white');
           iconDiv.classList.add('bg-gradient-to-tl', 'from-purple-700', 'to-pink-500');
         }
-        perfilLink.querySelectorAll('svg path').forEach(function(p) {
+        link.querySelectorAll('svg path').forEach(function(p) {
           p.classList.remove('fill-slate-800');
           p.classList.add('fill-white');
         });
       }
     });
+  });
 
-    // Script para cambiar la selección al hacer clic
-    document.querySelectorAll('aside ul li a').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        document.querySelectorAll('aside ul li a').forEach(function(l) {
-          l.classList.remove('border-2', 'border-pink-500', 'shadow-soft-xl');
-          l.querySelector('div').classList.remove('bg-gradient-to-tl', 'from-purple-700', 'to-pink-500');
-          l.querySelector('div').classList.add('bg-white');
-          l.querySelectorAll('svg path').forEach(function(p) {
-            p.classList.remove('fill-white');
-            p.classList.add('fill-slate-800');
-          });
-        });
-        this.classList.add('border-2', 'border-pink-500', 'shadow-soft-xl');
-        this.querySelector('div').classList.remove('bg-white');
-        this.querySelector('div').classList.add('bg-gradient-to-tl', 'from-purple-700', 'to-pink-500');
-        this.querySelectorAll('svg path').forEach(function(p) {
-          p.classList.remove('fill-slate-800');
-          p.classList.add('fill-white');
+  // Script para cambiar la selección al hacer clic
+  document.querySelectorAll('aside ul li a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      document.querySelectorAll('aside ul li a').forEach(function(l) {
+        l.classList.remove('border-2', 'border-pink-500', 'shadow-soft-xl');
+        l.querySelector('div').classList.remove('bg-gradient-to-tl', 'from-purple-700', 'to-pink-500');
+        l.querySelector('div').classList.add('bg-white');
+        l.querySelectorAll('svg path').forEach(function(p) {
+          p.classList.remove('fill-white');
+          p.classList.add('fill-slate-800');
         });
       });
+      this.classList.add('border-2', 'border-pink-500', 'shadow-soft-xl');
+      this.querySelector('div').classList.remove('bg-white');
+      this.querySelector('div').classList.add('bg-gradient-to-tl', 'from-purple-700', 'to-pink-500');
+      this.querySelectorAll('svg path').forEach(function(p) {
+        p.classList.remove('fill-slate-800');
+        p.classList.add('fill-white');
+      });
     });
-  </script>
+  });
+</script>
   <!-- plugin for charts  -->
   <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}" async></script>
   <!-- github button -->

@@ -15,18 +15,19 @@ Route::get('/verify-email/{token}', [UserController::class, 'verifyEmailToken'])
 Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UserController::class, 'salir'])->name('logout');
+    Route::view('/perfil', 'perfil');
 
     // Rutas protegidas por rol
     Route::middleware('role:estudiante')->group(function () {
-        Route::view('/estudiante', 'perfil');
+        Route::view('/matricula','estudiante.matricula');
     });
     Route::middleware('role:padreFamilia')->group(function () {
-        Route::view('/padre', 'perfil');
+
     });
     Route::middleware('role:docente')->group(function () {
-        Route::view('/docente', 'perfil');
+
     });
     Route::middleware('role:administrador')->group(function () {
-        Route::view('/admin', 'perfil');
+        
     });
 });
