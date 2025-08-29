@@ -53,7 +53,8 @@
 
 -   `Ctrl + A` → Seleccionar todo
 -   `Ctrl + L` → Seleccionar línea completa
--   `Shift + Alt + ←/→` → Expandir/contraer selección
+-   `Shift + ←/→` → Expandir/contrar selección (letra por letra)
+-   `Shift + Alt + ←/→` → Expandir/contraer selección (a un grupo más grande)
 -   `Ctrl + Shift + L` → Seleccionar todas las ocurrencias de la palabra
 
 ### Copiar, Cortar, Pegar

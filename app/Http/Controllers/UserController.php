@@ -71,7 +71,15 @@ class UserController extends Controller
         // Regenerar sesión por seguridad
         $request->session()->regenerate();
         
-        return redirect()->intended('/welcome');
+        if ($user->esEstudiante()) {
+            return redirect()->intended('/estudiante');
+        } elseif ($user->esPadreFamilia()) {
+            return redirect()->intended('/padre');
+        } elseif ($user->esDocente()) {
+            return redirect()->intended('/docente');
+        } elseif ($user->esAdmin()) {
+            return redirect()->intended('/admin');
+        }
     }
     public function salir(Request $request){ 
         Auth::logout();

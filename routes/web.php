@@ -13,20 +13,20 @@ Route::get('/verify-email/{token}', [UserController::class, 'verifyEmailToken'])
 
 // Rutas protegidas por autenticación
 Route::middleware('auth')->group(function () {
-    Route::view('/welcome', 'welcome');
+
     Route::get('/logout', [UserController::class, 'salir'])->name('logout');
 
     // Rutas protegidas por rol
     Route::middleware('role:estudiante')->group(function () {
-        Route::view('/estudiante', 'estudiante.perfil');
+        Route::view('/estudiante', 'perfil');
     });
     Route::middleware('role:padreFamilia')->group(function () {
-        Route::view('/padre', 'padre.dashboard');
+        Route::view('/padre', 'perfil');
     });
     Route::middleware('role:docente')->group(function () {
-        Route::view('/docente', 'docente.dashboard');
+        Route::view('/docente', 'perfil');
     });
     Route::middleware('role:administrador')->group(function () {
-        Route::view('/admin', 'admin.dashboard');
+        Route::view('/admin', 'perfil');
     });
 });

@@ -38,7 +38,7 @@
       <div class="items-center block w-auto max-h-screen overflow-auto h- grow basis-full">
         <ul class="flex flex-col pl-0 mb-0">
           <li class="mt-0.5 w-full">
-            <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors rounded-lg " id="sidebar-tables" href="#">
+            <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors rounded-lg " id="sidebar-perfil" href="#">
               <div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5 transition-all" id="icon-tables">
                 <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <title>customer-support</title>
@@ -386,7 +386,7 @@
 
     <main class="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all duration-200">
       <!-- Navbar -->
-      <nav class="sticky top-0 z-50 bg-gray-50 w-full flex flex-wrap items-center justify-between px-4 py-2 transition-all shadow-none duration-250 ease-soft-in lg:flex-nowrap lg:justify-start" navbar-main navbar-scroll="true">
+      <nav class="sticky top-0 z-50 bg-gray-50 w-full flex flex-wrap items-center justify-between px-4 py-2 transition-all shadow-none duration-250 ease-soft-in lg:flex-nowrap lg:justify-start" navbar-main>
         <div class="flex items-center justify-end w-full px-4 py-1 mx-auto flex-wrap-inherit">
           <div class="flex justify-end mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 lg:flex lg:basis-auto">
             <ul class="flex flex-row justify-end pl-0 mb-0 list-none md-max:w-full">
@@ -408,7 +408,7 @@
 
       <!-- CONTENIDO PRINCIPAL -->
       <div class="w-full mx-auto">
-        <div class="w-full px-4 py-2 mx-auto min-h-[calc(100vh-120px)]" style="padding-bottom:40px;">
+        <div class="w-full px-4 py-2 mx-auto min-h-[calc(100vh-120px)]" style="padding-bottom:20px;">
           @yield('contenido')
         </div>
       </div>
@@ -431,6 +431,24 @@
     </main>
   </body>
   <script>
+    // Selección inicial al cargar la página
+    window.addEventListener('DOMContentLoaded', function() {
+      var perfilLink = document.getElementById('sidebar-perfil');
+      if (perfilLink) {
+        perfilLink.classList.add('border-2', 'border-pink-500', 'shadow-soft-xl');
+        var iconDiv = perfilLink.querySelector('div');
+        if (iconDiv) {
+          iconDiv.classList.remove('bg-white');
+          iconDiv.classList.add('bg-gradient-to-tl', 'from-purple-700', 'to-pink-500');
+        }
+        perfilLink.querySelectorAll('svg path').forEach(function(p) {
+          p.classList.remove('fill-slate-800');
+          p.classList.add('fill-white');
+        });
+      }
+    });
+
+    // Script para cambiar la selección al hacer clic
     document.querySelectorAll('aside ul li a').forEach(function(link) {
       link.addEventListener('click', function(e) {
         document.querySelectorAll('aside ul li a').forEach(function(l) {
@@ -454,8 +472,6 @@
   </script>
   <!-- plugin for charts  -->
   <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}" async></script>
-  <!-- plugin for scrollbar  -->
-  <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}" async></script>
   <!-- github button -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- main script file  -->
