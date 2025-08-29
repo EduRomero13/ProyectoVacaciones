@@ -18,7 +18,7 @@ Route::middleware('auth')->group(function () {
 
     // Rutas protegidas por rol
     Route::middleware('role:estudiante')->group(function () {
-        Route::view('/estudiante', 'estudiante.dashboard');
+        Route::view('/estudiante', 'estudiante.perfil');
     });
     Route::middleware('role:padreFamilia')->group(function () {
         Route::view('/padre', 'padre.dashboard');
