@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MatriculaController;
 
 // Rutas públicas
 Route::view('/', 'login')->name('login');
@@ -19,7 +20,8 @@ Route::middleware('auth')->group(function () {
 
     // Rutas protegidas por rol
     Route::middleware('role:estudiante')->group(function () {
-        Route::view('/matricula','estudiante.matricula');
+        Route::get('/matricula',[MatriculaController::class, 'show'])->name('matricula');
+        Route::post('/matricular',[MatriculaController::class, 'matricular'])->name('matricular');
     });
     Route::middleware('role:padreFamilia')->group(function () {
 
