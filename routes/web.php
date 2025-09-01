@@ -16,12 +16,14 @@ Route::get('/verify-email/{token}', [UserController::class, 'verifyEmailToken'])
 Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UserController::class, 'salir'])->name('logout');
-    Route::view('/perfil', 'perfil');
+    Route::view('/perfil', 'perfil')->name('perfil');
 
     // Rutas protegidas por rol
     Route::middleware('role:estudiante')->group(function () {
         Route::get('/matricula',[MatriculaController::class, 'show'])->name('matricula');
         Route::post('/matricular',[MatriculaController::class, 'matricular'])->name('matricular');
+        Route::get('/pago', [\App\Http\Controllers\PagoController::class, 'showPago'])->name('pago');
+        Route::post('/realizar-pago', [\App\Http\Controllers\PagoController::class, 'realizarPago'])->name('realizarPago');
     });
     Route::middleware('role:padreFamilia')->group(function () {
 
