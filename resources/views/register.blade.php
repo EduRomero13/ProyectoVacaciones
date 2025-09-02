@@ -577,9 +577,7 @@
           // Remover required de campos ocultos
           const inputs = field.querySelectorAll('input, select, textarea');
           inputs.forEach(input => {
-            if (input.type !== 'file') {
-              input.removeAttribute('required');
-            }
+            input.removeAttribute('required');
           });
         });
         

@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MatriculaController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\AdminController;
 
 // Rutas públicas
 Route::view('/', 'login')->name('login');
@@ -22,8 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:estudiante')->group(function () {
         Route::get('/matricula',[MatriculaController::class, 'show'])->name('matricula');
         Route::post('/matricular',[MatriculaController::class, 'matricular'])->name('matricular');
-        Route::get('/pago', [\App\Http\Controllers\PagoController::class, 'showPago'])->name('pago');
-        Route::post('/realizar-pago', [\App\Http\Controllers\PagoController::class, 'realizarPago'])->name('realizarPago');
+        Route::get('/pago', [PagoController::class, 'showPago'])->name('pago');
+        Route::post('/realizar-pago', [PagoController::class, 'realizarPago'])->name('realizarPago');
     });
     Route::middleware('role:padreFamilia')->group(function () {
 
@@ -32,6 +34,10 @@ Route::middleware('auth')->group(function () {
 
     });
     Route::middleware('role:administrador')->group(function () {
-        
+        // Administración de usuarios
+        Route::get('/admin/users', [AdminController::class, 'usersIndex'])->name('admin.users.index');
+        Route::post('/admin/users', [AdminController::class, 'usersStore'])->name('admin.users.store');
+        Route::post('/admin/users/{user}/verify', [AdminController::class, 'usersVerify'])->name('admin.users.verify');
+        Route::post('/admin/users/{user}/block', [AdminController::class, 'usersBlock'])->name('admin.users.block');
     });
 });
