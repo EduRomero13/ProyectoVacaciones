@@ -44,5 +44,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/cursos', [AdminController::class, 'cursosIndex'])->name('admin.cursos.index');
         Route::post('/admin/cursos', [AdminController::class, 'cursosStore'])->name('admin.cursos.store');
         Route::post('/admin/cursos/{idCurso}/delete', [AdminController::class, 'cursosDelete'])->name('admin.cursos.delete');
+
+        // Administración de matrículas
+        Route::get('/admin/matriculas', [MatriculaController::class, 'adminIndex'])->name('admin.matriculas.index');
+        Route::post('/admin/matriculas/plazo', [MatriculaController::class, 'guardarPlazo'])->name('admin.matriculas.plazo');
+        Route::put('/admin/matriculas/{idMatricula}/estado', [MatriculaController::class, 'actualizarEstado'])->name('admin.matriculas.estado');
     });
 });

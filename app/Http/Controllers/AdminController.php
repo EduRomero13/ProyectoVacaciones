@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\Estudiante;
 use App\Models\Padre;
 use App\Models\Docente;
+use App\Models\Curso;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -139,8 +140,9 @@ class AdminController extends Controller
 
     public function cursosIndex()
     {
-        $cursos = \App\Models\Curso::with('docente')->paginate(20);
-        $docentes = \App\Models\Docente::with('user')->get();
+        $cursos = Curso::with('docente')->paginate(20);
+        //$cursosFormales = Curso::where('especialidad', 'like', '%ciencias formales%')->get(); //sacar un grupo con especialidad específica
+        $docentes = Docente::with('user')->get();
         return view('admin.cursos', compact('cursos', 'docentes'));
     }
 
