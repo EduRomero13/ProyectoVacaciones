@@ -39,5 +39,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin/users', [AdminController::class, 'usersStore'])->name('admin.users.store');
         Route::post('/admin/users/{user}/verify', [AdminController::class, 'usersVerify'])->name('admin.users.verify');
         Route::post('/admin/users/{user}/block', [AdminController::class, 'usersBlock'])->name('admin.users.block');
+
+        // Administración de cursos
+        Route::get('/admin/cursos', [AdminController::class, 'cursosIndex'])->name('admin.cursos.index');
+        Route::post('/admin/cursos', [AdminController::class, 'cursosStore'])->name('admin.cursos.store');
+        Route::post('/admin/cursos/{idCurso}/delete', [AdminController::class, 'cursosDelete'])->name('admin.cursos.delete');
     });
 });

@@ -136,4 +136,48 @@ class AdminController extends Controller
         $user->save();
         return back()->with('success', 'Usuario bloqueado correctamente.');
     }
+
+    public function cursosIndex()
+    {
+        $cursos = \App\Models\Curso::with('docente')->paginate(20);
+        $docentes = \App\Models\Docente::with('user')->get();
+        return view('admin.cursos', compact('cursos', 'docentes'));
+    }
+
+    public function cursosStore(Request $request)
+    {
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'especialidad' => 'required|string|max:255',
+            'duracion' => 'required|string|max:255',
+            'cupoMaximo' => 'required|integer|min:1',
+            'idDocente' => 'nullable|exists:docentes,id',
+            'idCurso' => 'nullable|integer',
+        ]);
+
+        if ($data['idCurso']) {
+            // Editar curso existente
+            $curso = \App\Models\Curso::find($data['idCurso']);
+            if ($curso) {
+                $curso->update($data);
+                return redirect()->route('admin.cursos.index')->with('success', 'Curso actualizado correctamente.');
+            }
+        } else {
+            // Crear nuevo curso
+            \App\Models\Curso::create($data);
+            return redirect()->route('admin.cursos.index')->with('success', 'Curso creado correctamente.');
+        }
+        return redirect()->route('admin.cursos.index')->with('error', 'No se pudo guardar el curso.');
+    }
+
+    public function cursosDelete(Request $request, $idCurso)
+    {
+        $curso = \App\Models\Curso::find($idCurso);
+        if ($curso) {
+            $curso->delete();
+            return back()->with('success', 'Curso eliminado correctamente.');
+        }
+        return back()->with('error', 'No se encontró el curso.');
+    }
 }
