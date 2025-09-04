@@ -14,6 +14,8 @@ use App\Models\Curso;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Pago;
+use App\Models\Matricula;
 
 class AdminController extends Controller
 {
@@ -181,5 +183,23 @@ class AdminController extends Controller
             return back()->with('success', 'Curso eliminado correctamente.');
         }
         return back()->with('error', 'No se encontró el curso.');
+    }
+
+    // PAGOS
+    public function pagosIndex()
+    {
+        $pagos = Pago::with(['matricula.estudiante.user','matricula.cursos'])->get();
+        return view('admin.pagos', compact('pagos'));
+    }
+
+    public function pagosActualizarEstado(Request $request, $idPago)
+    {
+        $request->validate([
+            'estado' => 'required|in:pendiente,validado,rechazado'
+        ]);
+        $pago = Pago::findOrFail($idPago);
+        $pago->estado = $request->estado;
+        $pago->save();
+        return back()->with('success','Estado de pago actualizado.');
     }
 }

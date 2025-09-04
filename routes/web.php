@@ -49,5 +49,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/matriculas', [MatriculaController::class, 'adminIndex'])->name('admin.matriculas.index');
         Route::post('/admin/matriculas/plazo', [MatriculaController::class, 'guardarPlazo'])->name('admin.matriculas.plazo');
         Route::put('/admin/matriculas/{idMatricula}/estado', [MatriculaController::class, 'actualizarEstado'])->name('admin.matriculas.estado');
+        
+        // Administración de pagos
+        Route::get('/admin/pagos', [AdminController::class, 'pagosIndex'])->name('admin.pagos.index');
+        Route::put('/admin/pagos/{idPago}/estado', [AdminController::class, 'pagosActualizarEstado'])->name('admin.pagos.estado');
     });
 });
