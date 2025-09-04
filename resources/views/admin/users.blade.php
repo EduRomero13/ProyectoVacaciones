@@ -119,6 +119,7 @@
 								<th class="px-4 py-2">Nombre</th>
 								<th class="px-4 py-2">Email</th>
 								<th class="px-4 py-2">Tipo</th>
+								<th class="px-4 py-2">Documentos</th>
 								<th class="px-4 py-2">Estado</th>
 								<th class="px-4 py-2">Acciones</th>
 							</tr>
@@ -130,6 +131,17 @@
 								<td class="border px-4 py-2">{{ $user->name }}</td>
 								<td class="border px-4 py-2">{{ $user->email }}</td>
 								<td class="border px-4 py-2">{{ $user->role->nombreRol ?? '-' }}</td>
+								<td class="text-center">
+									@if($user->esDocente() && $user->docente && $user->docente->tituloProfesional)
+										<button class="btn btn-info btn-sm" onclick="showDocumentModal('{{ asset('storage/' . $user->docente->tituloProfesional) }}')">Ver título</button>
+									@elseif($user->esEstudiante() && $user->estudiante && $user->estudiante->constanciaEstudios)
+										<button class="btn btn-info btn-sm" onclick="showDocumentModal('{{ asset('storage/' . $user->estudiante->constanciaEstudios) }}')">Ver constancia</button>
+									@elseif($user->esPadreFamilia() && $user->padre && $user->padre->partidaNacimientoHijo)
+										<button class="btn btn-info btn-sm" onclick="showDocumentModal('{{ asset('storage/' . $user->padre->partidaNacimientoHijo) }}')">Ver partida</button>
+									@else
+										<span class="text-muted">No disponible</span>
+									@endif
+								</td>
 								<td class="border px-4 py-2">
 									@if($user->estadoCuenta === 'pendiente')
 										<span class="px-2 py-1 rounded bg-yellow-100 text-yellow-800">Pendiente</span>
@@ -172,28 +184,51 @@
 		</div>
 	</div>
 </div>
+<div id="documentModal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6);">
+    <div style="position:relative; margin:5% auto; background:#fff; padding:20px; border-radius:8px; max-width:600px;">
+        <span style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;" onclick="closeDocumentModal()">&times;</span>
+        <div id="documentContent"></div>
+    </div>
+</div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-	const radios = document.querySelectorAll('input[name="user_type"]');
-	const estudianteFields = document.getElementById('estudiante-fields');
-	const padreFields = document.getElementById('padre-fields');
-	const docenteFields = document.getElementById('docente-fields');
-	function toggleFields() {
-		estudianteFields.style.display = 'none';
-		padreFields.style.display = 'none';
-		docenteFields.style.display = 'none';
-		if (document.querySelector('input[name="user_type"]:checked').value === 'estudiante') {
-			estudianteFields.style.display = 'block';
-		} else if (document.querySelector('input[name="user_type"]:checked').value === 'padre') {
-			padreFields.style.display = 'block';
-		} else {
-			docenteFields.style.display = 'block';
+	document.addEventListener('DOMContentLoaded', function() {
+		const radios = document.querySelectorAll('input[name="user_type"]');
+		const estudianteFields = document.getElementById('estudiante-fields');
+		const padreFields = document.getElementById('padre-fields');
+		const docenteFields = document.getElementById('docente-fields');
+		function toggleFields() {
+			estudianteFields.style.display = 'none';
+			padreFields.style.display = 'none';
+			docenteFields.style.display = 'none';
+			if (document.querySelector('input[name="user_type"]:checked').value === 'estudiante') {
+				estudianteFields.style.display = 'block';
+			} else if (document.querySelector('input[name="user_type"]:checked').value === 'padre') {
+				padreFields.style.display = 'block';
+			} else {
+				docenteFields.style.display = 'block';
+			}
 		}
-	}
-	radios.forEach(radio => {
-		radio.addEventListener('change', toggleFields);
+		radios.forEach(radio => {
+			radio.addEventListener('change', toggleFields);
+		});
+		toggleFields();
 	});
-	toggleFields();
-});
+	function showDocumentModal(url) {
+        var ext = url.split('.').pop().toLowerCase();
+        var content = '';
+        if(['pdf'].includes(ext)) {
+            content = '<iframe src="' + url + '" width="100%" height="500px"></iframe>';
+        } else if(['jpg','jpeg','png'].includes(ext)) {
+            content = '<img src="' + url + '" style="max-width:100%; max-height:500px;" />';
+        } else {
+            content = '<p>No se puede mostrar este tipo de archivo.</p>';
+        }
+        document.getElementById('documentContent').innerHTML = content;
+        document.getElementById('documentModal').style.display = 'block';
+    }
+    function closeDocumentModal() {
+        document.getElementById('documentModal').style.display = 'none';
+        document.getElementById('documentContent').innerHTML = '';
+    }
 </script>
 @endsection
