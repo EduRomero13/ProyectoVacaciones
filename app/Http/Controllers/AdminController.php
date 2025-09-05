@@ -289,4 +289,63 @@ class AdminController extends Controller
         Horario::create($request->all());
         return redirect()->route('admin.horarios.index')->with('success', 'Horario asignado correctamente.');
     }
+    
+    public function horariosUpdate(Request $request, $idHorario)
+    {
+        $horario = Horario::findOrFail($idHorario);
+        $request->validate([
+            'idCurso' => 'required|exists:cursos,idCurso',
+            'idAula' => 'required|exists:aulas,idAula',
+            'diaSemana' => 'required',
+            'horaInicio' => 'required',
+            'horaFin' => 'required|after:horaInicio',
+        ]);
+
+        $aula = \App\Models\Aula::findOrFail($request->idAula);
+        if (!$aula->disponibilidad && $aula->idAula != $horario->idAula) {
+            return back()->withErrors(['idAula' => 'El aula seleccionada no está disponible para dictar clases.'])->withInput();
+        }
+
+        $horaInicio = $request->horaInicio;
+        $horaFin = $request->horaFin;
+        if ($horaInicio < '07:00' || $horaFin > '19:00') {
+            return back()->withErrors(['horaInicio' => 'El horario debe estar entre 07:00 y 19:00.'])->withInput();
+        }
+
+        $curso = \App\Models\Curso::findOrFail($request->idCurso);
+        $hInicio = intval(substr($horaInicio, 0, 2));
+        $hFin = intval(substr($horaFin, 0, 2));
+        $diffHoras = $hFin - $hInicio;
+        $duracionCurso = intval($curso->duracion);
+        if ($diffHoras !== $duracionCurso) {
+            return back()->withErrors(['horaFin' => 'La diferencia entre la hora de inicio y fin debe ser exactamente ' . $curso->duracion . ' horas para este curso.'])->withInput();
+        }
+
+        // Validar cruce de horarios en la misma aula (excluyendo el actual)
+        $cruce = Horario::where('idAula', $request->idAula)
+            ->where('diaSemana', $request->diaSemana)
+            ->where('idHorario', '!=', $horario->idHorario)
+            ->where(function($q) use ($horaInicio, $horaFin) {
+                $q->whereBetween('horaInicio', [$horaInicio, $horaFin])
+                ->orWhereBetween('horaFin', [$horaInicio, $horaFin])
+                ->orWhere(function($q2) use ($horaInicio, $horaFin) {
+                    $q2->where('horaInicio', '<', $horaInicio)
+                        ->where('horaFin', '>', $horaFin);
+                });
+            })
+            ->exists();
+        if ($cruce) {
+            return back()->withErrors(['idAula' => 'El aula ya tiene un curso asignado en ese horario.'])->withInput();
+        }
+
+        $horario->update($request->all());
+        return redirect()->route('admin.horarios.index')->with('success', 'Horario actualizado correctamente.');
+    }
+
+    public function horariosDelete($idHorario)
+    {
+        $horario = Horario::findOrFail($idHorario);
+        $horario->delete();
+        return redirect()->route('admin.horarios.index')->with('success', 'Horario eliminado correctamente.');
+    }
 }

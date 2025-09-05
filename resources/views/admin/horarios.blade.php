@@ -70,26 +70,76 @@
 		<h3 class="text-xl font-semibold mb-4">Horarios Asignados</h3>
 		<table class="min-w-full table-auto border rounded-lg overflow-hidden">
 			<thead>
-				<tr class="bg-gray-100">
-					<th class="px-4 py-2">Curso</th>
-					<th class="px-4 py-2">Aula</th>
-					<th class="px-4 py-2">Día</th>
-					<th class="px-4 py-2">Hora inicio</th>
-					<th class="px-4 py-2">Hora fin</th>
-				</tr>
+				   <tr class="bg-gray-100">
+					   <th class="px-4 py-2">Curso</th>
+					   <th class="px-4 py-2">Aula</th>
+					   <th class="px-4 py-2">Día</th>
+					   <th class="px-4 py-2">Hora inicio</th>
+					   <th class="px-4 py-2">Hora fin</th>
+					   <th class="px-4 py-2">Acciones</th>
+				   </tr>
 			</thead>
 			<tbody>
-				@forelse($horarios as $horario)
-					<tr>
-						<td class="border px-4 py-2">{{ $horario->curso->getNombre() }}</td>
-						<td class="border px-4 py-2">{{ $horario->aula->descripcion }}</td>
-						<td class="border px-4 py-2">{{ $horario->diaSemana }}</td>
-						<td class="border px-4 py-2">{{ $horario->horaInicio }}</td>
-						<td class="border px-4 py-2">{{ $horario->horaFin }}</td>
-					</tr>
+				   @forelse($horarios as $horario)
+					   @if(request('edit') == $horario->idHorario)
+					   <tr class="bg-yellow-50">
+						   <form method="POST" action="{{ route('admin.horarios.update', $horario->idHorario) }}">
+							   @csrf
+							   @method('PUT')
+							   <td class="border px-4 py-2">
+								   <select name="idCurso" class="border rounded px-2 py-1 w-full" required>
+									   @foreach($cursos as $curso)
+										   <option value="{{ $curso->idCurso }}" @if($curso->idCurso == $horario->idCurso) selected @endif>{{ $curso->getNombre() }}</option>
+									   @endforeach
+								   </select>
+							   </td>
+							   <td class="border px-4 py-2">
+								   <select name="idAula" class="border rounded px-2 py-1 w-full" required>
+									   @foreach($aulas as $aula)
+										   @if($aula->disponibilidad || $aula->idAula == $horario->idAula)
+											   <option value="{{ $aula->idAula }}" @if($aula->idAula == $horario->idAula) selected @endif>{{ $aula->descripcion }}</option>
+										   @endif
+									   @endforeach
+								   </select>
+							   </td>
+							   <td class="border px-4 py-2">
+								   <select name="diaSemana" class="border rounded px-2 py-1 w-full" required>
+									   @foreach(['Lunes','Martes','Miércoles','Jueves','Viernes'] as $dia)
+										   <option value="{{ $dia }}" @if($dia == $horario->diaSemana) selected @endif>{{ $dia }}</option>
+									   @endforeach
+								   </select>
+							   </td>
+							   <td class="border px-4 py-2">
+								   <input type="time" name="horaInicio" class="border rounded px-2 py-1 w-full" value="{{ $horario->horaInicio }}" required step="3600" min="07:00" max="19:00">
+							   </td>
+							   <td class="border px-4 py-2">
+								   <input type="time" name="horaFin" class="border rounded px-2 py-1 w-full" value="{{ $horario->horaFin }}" required step="3600" min="07:00" max="19:00">
+							   </td>
+							   <td class="border px-4 py-2 flex gap-2">
+								   <button type="submit" class="bg-green-500 text-black px-2 py-1 rounded">Guardar</button>
+								   <a href="{{ route('admin.horarios.index') }}" class="bg-gray-400 text-black px-2 py-1 rounded">Cancelar</a>
+							   </td>
+						   </form>
+					   </tr>
+					   @else
+					   <tr>
+						   <td class="border px-4 py-2">{{ $horario->curso->getNombre() }}</td>
+						   <td class="border px-4 py-2">{{ $horario->aula->descripcion }}</td>
+						   <td class="border px-4 py-2">{{ $horario->diaSemana }}</td>
+						   <td class="border px-4 py-2">{{ $horario->horaInicio }}</td>
+						   <td class="border px-4 py-2">{{ $horario->horaFin }}</td>
+						   <td class="border px-4 py-2 flex gap-2">
+							   <a href="{{ route('admin.horarios.index', ['edit' => $horario->idHorario]) }}" class="bg-yellow-400 text-black px-2 py-1 rounded">Editar</a>
+							   <form method="POST" action="{{ route('admin.horarios.delete', $horario->idHorario) }}" onsubmit="return confirm('¿Seguro que deseas eliminar este horario?');">
+								   @csrf
+								   <button type="submit" class="bg-red-500 text-black px-2 py-1 rounded">Eliminar</button>
+							   </form>
+						   </td>
+					   </tr>
+					   @endif
 				@empty
 					<tr>
-						<td colspan="5" class="text-center py-4 text-gray-500">No hay horarios asignados.</td>
+							<td colspan="6" class="text-center py-4 text-gray-500">No hay horarios asignados.</td>
 					</tr>
 				@endforelse
 			</tbody>
