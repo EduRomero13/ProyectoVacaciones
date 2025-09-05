@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Pago;
 use App\Models\Matricula;
+use App\Models\Aula;
+use App\Models\Horario;
 
 class AdminController extends Controller
 {
@@ -142,10 +144,30 @@ class AdminController extends Controller
 
     public function cursosIndex()
     {
-        $cursos = Curso::with('docente')->paginate(20);
-        //$cursosFormales = Curso::where('especialidad', 'like', '%ciencias formales%')->get(); //sacar un grupo con especialidad específica
+        $especialidades = [
+            'ciencias formales',
+            'ciencias naturales',
+            'ciencias sociales',
+            'ciencias aplicadas',
+        ];
+        $filtro = request('especialidad');
+        $nombreCurso = request('nombre_curso');
+        $nombreDocente = request('nombre_docente');
+        $query = Curso::with(['docente.user']);
+        if ($filtro && in_array($filtro, $especialidades)) {
+            $query->where('especialidad', 'like', '%' . $filtro . '%');
+        }
+        if ($nombreCurso) {
+            $query->where('nombre', 'like', '%' . $nombreCurso . '%');
+        }
+        if ($nombreDocente) {
+            $query->whereHas('docente.user', function($q) use ($nombreDocente) {
+                $q->where('name', 'like', '%' . $nombreDocente . '%');
+            });
+        }
+        $cursos = $query->paginate(30);
         $docentes = Docente::with('user')->get();
-        return view('admin.cursos', compact('cursos', 'docentes'));
+        return view('admin.cursos', compact('cursos', 'docentes', 'especialidades', 'filtro', 'nombreCurso', 'nombreDocente'));
     }
 
     public function cursosStore(Request $request)
@@ -185,7 +207,6 @@ class AdminController extends Controller
         return back()->with('error', 'No se encontró el curso.');
     }
 
-    // PAGOS
     public function pagosIndex()
     {
         $pagos = Pago::with(['matricula.estudiante.user','matricula.cursos'])->get();
@@ -201,5 +222,71 @@ class AdminController extends Controller
         $pago->estado = $request->estado;
         $pago->save();
         return back()->with('success','Estado de pago actualizado.');
+    }
+    
+    public function horariosIndex() {
+        $cursos = Curso::all();
+        $aulas = Aula::all();
+        $horarios = Horario::with(['curso', 'aula'])->orderBy('diaSemana')->orderBy('horaInicio')->get();
+        return view('admin.horarios', compact('cursos', 'aulas', 'horarios'));
+    }
+
+    public function horariosStore(Request $request) {
+        // Validar que el curso no tenga ya un horario asignado
+        $existeHorario = Horario::where('idCurso', $request->idCurso)->exists();
+        if ($existeHorario) {
+            return back()->withErrors(['idCurso' => 'Este curso ya tiene un horario asignado.'])->withInput();
+        }
+
+        $request->validate([
+            'idCurso' => 'required|exists:cursos,idCurso',
+            'idAula' => 'required|exists:aulas,idAula',
+            'diaSemana' => 'required',
+            'horaInicio' => 'required',
+            'horaFin' => 'required|after:horaInicio',
+        ]);
+
+        $aula = Aula::findOrFail($request->idAula);
+        if (!$aula->disponibilidad) {
+            return back()->withErrors(['idAula' => 'El aula seleccionada no está disponible para dictar clases.'])->withInput();
+        }
+
+        // Validar que el horario esté entre 07:00 y 19:00
+        $horaInicio = $request->horaInicio;
+        $horaFin = $request->horaFin;
+        if ($horaInicio < '07:00' || $horaFin >'19:00') {
+            return back()->withErrors(['horaInicio' => 'El horario debe estar entre 07:00 y 19:00.'])->withInput();
+        }
+
+        // Validar que la duración del horario coincida con la duración del curso
+        $curso = Curso::findOrFail($request->idCurso);
+        // Solo permitimos horas exactas, así que tomamos la parte de la hora
+        $hInicio = intval(substr($horaInicio, 0, 2));//toma la parte de las horas tomando los dos primeros caracteres de las cadenas (07:00 ->07) y las pasa a entero (intval)
+        $hFin = intval(substr($horaFin, 0, 2));
+        $diffHoras = $hFin - $hInicio;
+        $duracionCurso = intval($curso->duracion);//obtiene en entero el valor de las horas dictadas del curso en la base de datos
+
+        if ($diffHoras !== $duracionCurso) {//compara la diferencia hallada con la duracion actual del curso
+            return back()->withErrors(['horaFin' => 'La diferencia entre la hora de inicio y fin debe ser exactamente ' . $curso->duracion . ' horas para este curso.'])->withInput();
+        }
+
+        // Validar cruce de horarios en la misma aula
+        $cruce = Horario::where('idAula', $request->idAula)
+            ->where('diaSemana', $request->diaSemana)
+            ->where(function($q) use ($horaInicio, $horaFin) {
+                $q->whereBetween('horaInicio', [$horaInicio, $horaFin])
+                ->orWhereBetween('horaFin', [$horaInicio, $horaFin])
+                ->orWhere(function($q2) use ($horaInicio, $horaFin) {
+                    $q2->where('horaInicio', '<', $horaInicio)
+                        ->where('horaFin', '>', $horaFin);
+                });
+            })
+            ->exists();
+        if ($cruce) {
+            return back()->withErrors(['idAula' => 'El aula ya tiene un curso asignado en ese horario.'])->withInput();
+        }
+
+        Horario::create($request->all());
+        return redirect()->route('admin.horarios.index')->with('success', 'Horario asignado correctamente.');
     }
 }

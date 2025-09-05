@@ -53,5 +53,9 @@ Route::middleware('auth')->group(function () {
         // Administración de pagos
         Route::get('/admin/pagos', [AdminController::class, 'pagosIndex'])->name('admin.pagos.index');
         Route::put('/admin/pagos/{idPago}/estado', [AdminController::class, 'pagosActualizarEstado'])->name('admin.pagos.estado');
+        
+        // Gestión de horarios
+        Route::get('/admin/horarios', [AdminController::class, 'horariosIndex'])->name('admin.horarios.index');
+        Route::post('/admin/horarios', [AdminController::class, 'horariosStore'])->name('admin.horarios.store');
     });
 });

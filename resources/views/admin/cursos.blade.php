@@ -52,6 +52,23 @@
 		</div>
 	</div>
 	<div class="w-full p-6 mx-auto">
+		<form method="GET" action="" class="mb-4 flex flex-wrap items-center gap-3">
+			<label for="especialidad" class="font-semibold">Especialidad:</label>
+			<select name="especialidad" id="especialidad" class="border rounded px-2 py-1" onchange="this.form.submit()">
+				<option value="">Todas</option>
+				@foreach($especialidades as $esp)
+					<option value="{{ $esp }}" @if(isset($filtro) && $filtro == $esp) selected @endif>{{ ucfirst($esp) }}</option>
+				@endforeach
+			</select>
+
+			<label for="nombre_curso" class="font-semibold">Curso:</label>
+			<input type="text" name="nombre_curso" id="nombre_curso" value="{{ $nombreCurso ?? '' }}" placeholder="Nombre del curso" class="border rounded px-2 py-1" onchange="this.form.submit()">
+
+			<label for="nombre_docente" class="font-semibold">Docente:</label>
+			<input type="text" name="nombre_docente" id="nombre_docente" value="{{ $nombreDocente ?? '' }}" placeholder="Nombre del docente" class="border rounded px-2 py-1" onchange="this.form.submit()">
+
+			<button type="submit" class="bg-blue-600 text-black px-3 py-1 rounded">Buscar</button>
+		</form>
 		<div class="flex flex-wrap -mx-3">
 			<div class="relative flex flex-col h-full w-full min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
 				<div class="p-4 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
