@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MatriculaController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EstudianteController;
 
 // Rutas públicas
 Route::view('/', 'login')->name('login');
@@ -26,6 +27,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/matricular',[MatriculaController::class, 'matricular'])->name('matricular');
         Route::get('/pago', [PagoController::class, 'showPago'])->name('pago');
         Route::post('/realizar-pago', [PagoController::class, 'realizarPago'])->name('realizarPago');
+        Route::get('/estudiante/horario',[EstudianteController::class,'horario']);
     });
     Route::middleware('role:padreFamilia')->group(function () {
 
