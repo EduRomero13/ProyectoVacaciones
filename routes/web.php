@@ -6,6 +6,7 @@ use App\Http\Controllers\MatriculaController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EstudianteController;
+use App\Http\Controllers\DocenteController;
 
 // Rutas públicas
 Route::view('/', 'login')->name('login');
@@ -33,7 +34,8 @@ Route::middleware('auth')->group(function () {
 
     });
     Route::middleware('role:docente')->group(function () {
-
+        Route::get('/docente/horario', [\App\Http\Controllers\DocenteController::class, 'horario'])->name('docente.horario');
+        Route::get('/docente/pagos', [\App\Http\Controllers\DocenteController::class, 'pagos'])->name('docente.pagos');
     });
     Route::middleware('role:administrador')->group(function () {
         // Administración de usuarios
