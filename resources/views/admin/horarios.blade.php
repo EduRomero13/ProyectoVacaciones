@@ -126,8 +126,8 @@
 						   <td class="border px-4 py-2">{{ $horario->curso->getNombre() }}</td>
 						   <td class="border px-4 py-2">{{ $horario->aula->descripcion }}</td>
 						   <td class="border px-4 py-2">{{ $horario->diaSemana }}</td>
-						   <td class="border px-4 py-2">{{ $horario->horaInicio }}</td>
-						   <td class="border px-4 py-2">{{ $horario->horaFin }}</td>
+						   <td class="border px-4 py-2">{{ \Carbon\Carbon::parse($horario->horaInicio)->format('H:i') }}</td>
+						   <td class="border px-4 py-2">{{ \Carbon\Carbon::parse($horario->horaFin)->format('H:i') }}</td>
 						   <td class="border px-4 py-2 flex gap-2">
 							   <a href="{{ route('admin.horarios.index', ['edit' => $horario->idHorario]) }}" class="bg-yellow-400 text-black px-2 py-1 rounded">Editar</a>
 							   <form method="POST" action="{{ route('admin.horarios.delete', $horario->idHorario) }}" onsubmit="return confirm('¿Seguro que deseas eliminar este horario?');">
