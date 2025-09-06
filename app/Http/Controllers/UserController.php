@@ -207,15 +207,8 @@ class UserController extends Controller
             ]);
         } elseif ($request->user_type === 'padre') {
             $request->validate([
-                'nombre_hijo' => 'required|string|max:255',
-                'dni_hijo' => 'required|string|max:8',
-                'partida_nacimiento_hijo' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 'ultimos_digitos_tarjeta' => 'nullable|string|size:4|regex:/^[0-9]{4}$/',
             ], [
-                'nombre_hijo.required' => 'El nombre del hijo es obligatorio.',
-                'dni_hijo.required' => 'El DNI del hijo es obligatorio.',
-                'partida_nacimiento_hijo.required' => 'La partida de nacimiento del hijo es obligatoria.',
-                'partida_nacimiento_hijo.max' => 'La partida de nacimiento del hijo no debe pesar más de 5MB.',
                 'ultimos_digitos_tarjeta.regex' => 'Los últimos 4 dígitos deben ser números.',
             ]);
         } elseif ($request->user_type === 'docente') {
@@ -272,15 +265,9 @@ class UserController extends Controller
                 ]);
 
             } elseif ($request->user_type === 'padre') {
-                // Guardar archivo
-                $partidaHijoPath = $request->file('partida_nacimiento_hijo')->store('documentos/padres/partidas_hijos', 'public');
-
                 Padre::create([
                     'id' => $user->id,
                 ]);
-
-                // Aquí podrías crear un registro temporal para el hijo que será validado después
-                // por ahora guardamos la información en un campo JSON o tabla temporal
 
             } elseif ($request->user_type === 'docente') {
                 // Guardar archivos

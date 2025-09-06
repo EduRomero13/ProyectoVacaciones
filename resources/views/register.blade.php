@@ -285,30 +285,7 @@
 
                     <!-- Campos específicos para padres de familia -->
                     <div id="padre-fields" class="role-specific-fields mb-4" style="display: none;">
-                      <h6 class="text-sm font-semibold text-slate-700 mb-3">Información del Hijo</h6>
-                      
-                      <div style="margin-bottom: 12px;">
-                        <input type="text" name="nombre_hijo" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Nombre completo del hijo" />
-                        @error('nombre_hijo')
-                          <span class="text-red-500 text-xs">{{ $message }}</span>
-                        @enderror
-                      </div>
-
-                      <div style="margin-bottom: 12px;">
-                        <input type="text" name="dni_hijo" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="DNI del hijo" />
-                        @error('dni_hijo')
-                          <span class="text-red-500 text-xs">{{ $message }}</span>
-                        @enderror
-                      </div>
-
-                      <div style="margin-bottom: 12px;">
-                        <label class="block text-xs text-slate-600 mb-1">Partida de Nacimiento del Hijo (PDF/JPG)</label>
-                        <input type="file" name="partida_nacimiento_hijo" accept=".pdf,.jpg,.jpeg,.png" class="text-sm block w-full text-gray-700 bg-white border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
-                        @error('partida_nacimiento_hijo')
-                          <span class="text-red-500 text-xs">{{ $message }}</span>
-                        @enderror
-                      </div>
-
+                      <h6 class="text-sm font-semibold text-slate-700 mb-3">Información extra</h6>
                       <div style="margin-bottom: 12px;">
                         <label class="block text-xs text-slate-600 mb-1">Últimos 4 dígitos de tarjeta (opcional)</label>
                         <input type="text" name="ultimos_digitos_tarjeta" maxlength="4" pattern="[0-9]{4}" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="XXXX" />

@@ -31,7 +31,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/estudiante/horario',[EstudianteController::class,'horario']);
     });
     Route::middleware('role:padreFamilia')->group(function () {
-
+        Route::get('/padre/registrar-hijo', function() {
+            return view('padre.registrarHijo');
+        })->name('padre.registrarHijo.form');
+        Route::post('/padre/registrar-hijo', [\App\Http\Controllers\PadreController::class, 'registrarHijo'])->name('padre.registrarHijo');
+        Route::get('/padre/matricula', [\App\Http\Controllers\PadreController::class, 'matriculaForm'])->name('padre.matricula');
+        Route::post('/padre/matricula/{idEstudiante}', [\App\Http\Controllers\PadreController::class, 'matricularHijo'])->name('padre.matricularHijo');
+        Route::get('/padre/pagos', [\App\Http\Controllers\PadreController::class, 'pagosForm'])->name('padre.pagos');
+        Route::post('/padre/pagos/{idPago}', [\App\Http\Controllers\PadreController::class, 'pagar'])->name('padre.pagar');
+        Route::post('/padre/pagar-matricula/{idMatricula}', [\App\Http\Controllers\PadreController::class, 'pagar'])->name('padre.pagarMatricula');
     });
     Route::middleware('role:docente')->group(function () {
         Route::get('/docente/horario', [\App\Http\Controllers\DocenteController::class, 'horario'])->name('docente.horario');
@@ -58,10 +66,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/pagos', [AdminController::class, 'pagosIndex'])->name('admin.pagos.index');
         Route::put('/admin/pagos/{idPago}/estado', [AdminController::class, 'pagosActualizarEstado'])->name('admin.pagos.estado');
         
-    // Gestión de horarios
-    Route::get('/admin/horarios', [AdminController::class, 'horariosIndex'])->name('admin.horarios.index');
-    Route::post('/admin/horarios', [AdminController::class, 'horariosStore'])->name('admin.horarios.store');
-    Route::put('/admin/horarios/{idHorario}', [AdminController::class, 'horariosUpdate'])->name('admin.horarios.update');
-    Route::post('/admin/horarios/{idHorario}/delete', [AdminController::class, 'horariosDelete'])->name('admin.horarios.delete');
+        // Gestión de horarios
+        Route::get('/admin/horarios', [AdminController::class, 'horariosIndex'])->name('admin.horarios.index');
+        Route::post('/admin/horarios', [AdminController::class, 'horariosStore'])->name('admin.horarios.store');
+        Route::put('/admin/horarios/{idHorario}', [AdminController::class, 'horariosUpdate'])->name('admin.horarios.update');
+        Route::post('/admin/horarios/{idHorario}/delete', [AdminController::class, 'horariosDelete'])->name('admin.horarios.delete');
     });
 });
