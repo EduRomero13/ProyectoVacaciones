@@ -7,6 +7,7 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\DocenteController;
+use App\Http\Controllers\PadreController;
 
 // Rutas públicas
 Route::view('/', 'login')->name('login');
@@ -34,16 +35,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/padre/registrar-hijo', function() {
             return view('padre.registrarHijo');
         })->name('padre.registrarHijo.form');
-        Route::post('/padre/registrar-hijo', [\App\Http\Controllers\PadreController::class, 'registrarHijo'])->name('padre.registrarHijo');
-        Route::get('/padre/matricula', [\App\Http\Controllers\PadreController::class, 'matriculaForm'])->name('padre.matricula');
-        Route::post('/padre/matricula/{idEstudiante}', [\App\Http\Controllers\PadreController::class, 'matricularHijo'])->name('padre.matricularHijo');
-        Route::get('/padre/pagos', [\App\Http\Controllers\PadreController::class, 'pagosForm'])->name('padre.pagos');
-        Route::post('/padre/pagos/{idPago}', [\App\Http\Controllers\PadreController::class, 'pagar'])->name('padre.pagar');
-        Route::post('/padre/pagar-matricula/{idMatricula}', [\App\Http\Controllers\PadreController::class, 'pagar'])->name('padre.pagarMatricula');
+        Route::post('/padre/registrar-hijo', [PadreController::class, 'registrarHijo'])->name('padre.registrarHijo');
+        Route::get('/padre/matricula', [PadreController::class, 'matriculaForm'])->name('padre.matricula');
+        Route::post('/padre/matricula/{idEstudiante}', [PadreController::class, 'matricularHijo'])->name('padre.matricularHijo');
+        Route::get('/padre/pagos', [PadreController::class, 'pagosForm'])->name('padre.pagos');
+        Route::post('/padre/pagos/{idPago}', [PadreController::class, 'pagar'])->name('padre.pagar');
+        Route::post('/padre/pagar-matricula/{idMatricula}', [PadreController::class, 'pagar'])->name('padre.pagarMatricula');
     });
     Route::middleware('role:docente')->group(function () {
-        Route::get('/docente/horario', [\App\Http\Controllers\DocenteController::class, 'horario'])->name('docente.horario');
-        Route::get('/docente/pagos', [\App\Http\Controllers\DocenteController::class, 'pagos'])->name('docente.pagos');
+        Route::get('/docente/horario', [DocenteController::class, 'horario'])->name('docente.horario');
+        Route::get('/docente/pagos', [DocenteController::class, 'pagos'])->name('docente.pagos');
     });
     Route::middleware('role:administrador')->group(function () {
         // Administración de usuarios
